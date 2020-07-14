@@ -6,7 +6,7 @@ echo ${local_vep_cache}
 
 rm -rf ${local_vep_cache}
 mkdir -p ${local_vep_cache}
-chmod a+rwx ${local_vep_cache}
+chmod a+rw ${local_vep_cache}
 
 # instructions from
 # http://www.ensembl.org/info/docs/tools/vep/script/vep_download.html#docker
@@ -15,6 +15,7 @@ sudo docker run -t -i \
      -v ${local_vep_cache}:/opt/vep/.vep \
       ${vep_docker_image} \
       perl INSTALL.pl -a cfp -s homo_sapiens -y ${genome} --PLUGINS all
+sudo chmod -R a+rw ${local_vep_cache} # required if docker user is different that regular user
 
 # add loftee plugin to the cache
 
