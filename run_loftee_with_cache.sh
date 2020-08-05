@@ -19,6 +19,7 @@ loftee_path=/opt/vep/.vep/Plugins/
 # additional files for loftee plugin:  
 human_ancestor_fa=/opt/vep/.vep/human_ancestor.fa.gz
 conservation_file=/opt/vep/.vep/phylocsf_gerp.sql
+gerp_file=/opt/vep/.vep/GERP_scores.final.sorted.txt.gz
 
 # now run vep-loftee:
 sudo docker run -t -i \
@@ -28,5 +29,5 @@ sudo docker run -t -i \
       ${vep_docker_image} \
       vep --cache --offline \
       -i ${vcf} \
-      --plugin LoF,loftee_path:${loftee_path},human_ancestor_fa:${human_ancestor_fa},conservation_file:${conservation_file} \
-      --vcf -o ${out_vcf} --minimal --force_overwrite 
+      --plugin LoF,loftee_path:${loftee_path},human_ancestor_fa:${human_ancestor_fa},conservation_file:${conservation_file},gerp_file:${gerp_file} \
+      --vcf -o ${out_vcf} --force_overwrite 
