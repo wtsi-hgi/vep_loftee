@@ -1,4 +1,4 @@
-vep_release=100.2 # this must match the version/tag of the docker image in dockerhub
+vep_release=94.5 # this must match the version/tag of the docker image in dockerhub
 #see https://hub.docker.com/r/mercury/vep_loftee/tags
 genome=GRCh38 # choose GRCh37 or GRCh38
 vep_docker_image=mercury/vep_loftee:${vep_release}
