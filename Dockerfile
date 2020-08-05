@@ -30,7 +30,7 @@ RUN perl Makefile.PL PREFIX=/opt/vep/DBD-SQLite
 RUN make
 RUN make test
 RUN make install
-ENV PERL5LIB /opt/vep/DBD-SQLite/lib/x86_64-linux-gnu/perl/5.26.1/:$PERL5LIB
+ENV PERL5LIB /opt/vep/DBD-SQLite/lib/x86_64-linux-gnu/perl/5.22.1/:$PERL5LIB
 RUN echo $PERL5LIB
 RUN ls -ltra /opt/vep/src/ensembl-vep
 RUN echo $PATH
