@@ -30,9 +30,18 @@ cp -rf tmp_clone/* ${local_vep_cache}/Plugins/
 rm -rf tmp_clone
 
 # download optional loftee files human_ancestor_fa
-wget https://s3.amazonaws.com/bcbio_nextgen/human_ancestor.fa.gz -P ${local_vep_cache}/
-wget https://s3.amazonaws.com/bcbio_nextgen/human_ancestor.fa.gz.fai -P ${local_vep_cache}/
-wget https://s3.amazonaws.com/bcbio_nextgen/human_ancestor.fa.gz.gzi -P ${local_vep_cache}/
-# download optional loftee files conservation_file
-wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh37/phylocsf_gerp.sql.gz -P ${local_vep_cache}/
-gunzip ${local_vep_cache}/phylocsf_gerp.sql.gz
+if [ $genome = "GRCh37" ]; then
+   wget https://s3.amazonaws.com/bcbio_nextgen/human_ancestor.fa.gz -P ${local_vep_cache}/
+   wget https://s3.amazonaws.com/bcbio_nextgen/human_ancestor.fa.gz.fai -P ${local_vep_cache}/
+   wget https://s3.amazonaws.com/bcbio_nextgen/human_ancestor.fa.gz.gzi -P ${local_vep_cache}/
+   # download optional loftee files conservation_file
+   wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh37/phylocsf_gerp.sql.gz -P ${local_vep_cache}/
+   gunzip ${local_vep_cache}/phylocsf_gerp.sql.gz
+else
+   wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/human_ancestor.fa.gz -P ${local_vep_cache}/
+   wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/human_ancestor.fa.gz.fai -P ${local_vep_cache}/
+   wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/human_ancestor.fa.gz.gzi -P ${local_vep_cache}/
+   # download optional loftee files conservation_file
+   wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/gerp_conservation_scores.homo_sapiens.GRCh38.bw -P ${local_vep_cache}/
+   wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/loftee.sql.gz -P ${local_vep_cache}/
+   gunzip ${local_vep_cache}/loftee.sql.gz
