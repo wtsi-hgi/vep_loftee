@@ -18,7 +18,11 @@ ls ${local_vep_cache}
 loftee_path=/opt/vep/.vep/Plugins/
 # additional files for loftee plugin:  
 human_ancestor_fa=/opt/vep/.vep/human_ancestor.fa.gz
-conservation_file=/opt/vep/.vep/phylocsf_gerp.sql
+if [ $genome = "GRCh37" ]; then                                                                        
+   conservation_file=${local_vep_cache}/phylocsf_gerp.sql                                              
+else                                                                                                   
+   conservation_file=${local_vep_cache}/loftee.sql                                                     
+fi
 gerp_file=/opt/vep/.vep/GERP_scores.final.sorted.txt.gz
 
 # now run vep-loftee:
