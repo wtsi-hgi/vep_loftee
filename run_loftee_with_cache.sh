@@ -15,7 +15,7 @@ echo ${local_vep_cache}
 ls ${local_vep_cache}
 
 # loftee github files were copied to ${local_vep_cache}/Plugins/, which is mounted in docker at /opt/vep/.vep/Plugins
-loftee_path=/opt/vep/.vep/Plugins/
+loftee_path=/opt/vep/.vep/Plugins
 # additional files for loftee plugin:  
 human_ancestor_fa=/opt/vep/.vep/human_ancestor.fa.gz
 if [ $genome = "GRCh37" ]; then                                                                        
@@ -32,5 +32,6 @@ sudo docker run -t -i \
       ${vep_docker_image} \
       vep --cache --offline \
       -i ${vcf} \
+      --dir_plugins /opt/vep/.vep/Plugins \
       --plugin LoF,loftee_path:${loftee_path},human_ancestor_fa:${human_ancestor_fa},conservation_file:${conservation_file} \
       --vcf -o ${out_vcf} --minimal --force_overwrite 
