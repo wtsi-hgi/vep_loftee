@@ -18,34 +18,77 @@ echo ${default_vep_cache}
 # use singularity to pull the docker image from dockerhub and build the equivalent Singularity container
 
 cd ${vep_dir}/singularity_containers/
-/software/singularity-v3.6.4/bin/singularity pull docker://${vep_docker_image}
+[[ -f ${vep_singularity_image} ]] || /software/singularity-v3.6.4/bin/singularity pull docker://${vep_docker_image}
 
 
 
 # instructions taken from
 # http://www.ensembl.org/info/docs/tools/vep/script/vep_download.html#docker
-echo install cache
-/software/singularity-v3.6.4/bin/singularity exec \
-     -B ${default_vep_cache}:/opt/vep/.vep \
+if [[ -d ${default_vep_cache}/homo_sapiens/${vep_cache_release}_${genome} ]]
+  then
+      echo "vep cache ${default_vep_cache}/homo_sapiens/${vep_cache_release}_${genome}"
+  else
+      echo install cache
+      /software/singularity-v3.6.4/bin/singularity exec \
+      -B ${default_vep_cache}:/opt/vep/.vep \
       ${vep_singularity_image} \
-      perl INSTALL.pl -a cf -s homo_sapiens -y ${genome}
+      perl /opt/vep/src/ensembl-vep/INSTALL.pl -d /opt/vep/.vep -c /opt/vep/.vep  -a cf -s homo_sapiens -y ${genome} --CACHE_VERSION ${vep_cache_release}
+fi	      
 
 
 #sudo chmod -R a+rw ${local_vep_cache} # required if docker user is different that regular user
-echo install Plugins
-/software/singularity-v3.6.4/bin/singularity exec \
+if [[ -d ${default_vep_cache}/Plugins ]]
+  then
+     echo "vep Plugins ${default_vep_cache}/Plugins"
+  else
+     echo install Plugins
+     /software/singularity-v3.6.4/bin/singularity exec \
      -B ${default_vep_cache}:/opt/vep/.vep \
-      ${vep_singularity_image} \
-      perl INSTALL.pl -a p --PLUGINS all
+     ${vep_singularity_image} \
+     perl /opt/vep/src/ensembl-vep/INSTALL.pl -a p --PLUGINS all --PLUGINSDIR /opt/vep/.vep/Plugins
+fi
 # add loftee plugin to the cache
 
 # add loftee plugin
 # instructions from https://github.com/konradjk/loftee
+
+if [[ -f ${default_vep_cache}/Plugins/LoF.pm ]]
+   then
+       loftee_md5=$(md5sum ${default_vep_cache}/Plugins/LoF.pm | awk '{print$1}')
+   else
+       loftee_md5="missing"
+fi
+
+
 echo add loftee plugin to cache
-cd ${default_vep_cache}
-git clone --single-branch --branch grch38 https://github.com/konradjk/loftee.git tmp_clone
-cp -rf tmp_clone/* ${default_vep_cache}/Plugins/
-rm -rf tmp_clone
+if [ $genome = "GRCh37" ]
+    then
+        echo "Checking loftee for ${genome}"
+        if [ $loftee_md5 = "b36c6afe5eac055717524e7761a87207" ]
+           then
+               echo "loftee installed for ${genome} at ${default_vep_cache}/Plugins/LoF.pm"
+           else
+               echo add loftee plugin to cache
+               cd ${default_vep_cache}
+               git clone  https://github.com/konradjk/loftee.git tmp_clone
+               cp -rf tmp_clone/* ${default_vep_cache}/Plugins/
+               rm -rf tmp_clone
+       fi
+
+    else
+        echo "Checking loftee for ${genome}"
+        loftee_md5=$(md5sum ${default_vep_cache}/Plugins/LoF.pm | awk '{print$1}')
+       if [ $loftee_md5 = "f739c86776aebee76ed8e2c4b8214b8a" ]
+           then
+               echo "loftee installed for ${genome} at ${default_vep_cache}/Plugins/LoF.pm"
+           else
+               echo add loftee plugin to cache
+               cd ${default_vep_cache}
+               git clone --single-branch --branch grch38 https://github.com/konradjk/loftee.git tmp_clone
+               cp -rf tmp_clone/* ${default_vep_cache}/Plugins/
+               rm -rf tmp_clone
+       fi
+fi
 
 # download optional loftee files human_ancestor_fa
 if [ $genome = "GRCh37" ]; then
@@ -58,10 +101,66 @@ if [ $genome = "GRCh37" ]; then
    [[ -f ${default_vep_cache}/Plugins/GERP_scores.final.sorted.txt.gz ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh37/GERP_scores.final.sorted.txt.gz -P ${default_vep_cache}/Plugins/                              
    [[ -f ${default_vep_cache}/Plugins/GERP_scores.final.sorted.txt.gz.tbi ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh37/GERP_scores.final.sorted.txt.gz.tbi -P ${default_vep_cache}/Plugins/                   
 else
-   [[ -f ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/human_ancestor.fa.gz -P ${default_vep_cache}/ -O grch38_human_ancestor.fa.gz
-   [[ -f ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz.fai ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/human_ancestor.fa.gz.fai -P ${default_vep_cache}/ -O grch38_human_ancestor.fa.gz.fai
-   [[ -f ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz.gzi ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/human_ancestor.fa.gz.gzi -P ${default_vep_cache}/ -O grch38_human_ancestor.fa.gz.gzi
+   [[ -f ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/human_ancestor.fa.gz -P ${default_vep_cache}/Plugins -O grch38_human_ancestor.fa.gz
+   [[ -f ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz.fai ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/human_ancestor.fa.gz.fai -P ${default_vep_cache}/Plugins -O grch38_human_ancestor.fa.gz.fai
+   [[ -f ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz.gzi ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/human_ancestor.fa.gz.gzi -P ${default_vep_cache}/Plugins -O grch38_human_ancestor.fa.gz.gzi
    # download optional loftee files conservation_file
    [[ -f ${default_vep_cache}/Plugins/gerp_conservation_scores.homo_sapiens.GRCh38.bw ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/gerp_conservation_scores.homo_sapiens.GRCh38.bw -P ${default_vep_cache}/Plugins/
-   [[ -f ${default_vep_cache}/Plugins/loftee.sql ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/loftee.sql.gz -P ${default_vep_cache}/Plugins/ && gunzip ${default_vep_cache}/Plugins/loftee.sql.gz
+    if [[ -f ${default_vep_cache}/Plugins/loftee.sql ]]
+      then
+           echo "loftee loftee.sql installed at ${default_vep_cache}/Plugins/loftee.sql"
+      else
+           wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/loftee.sql.gz -P ${default_vep_cache}/Plugins/
+	   gunzip ${default_vep_cache}/Plugins/loftee.sql.gz
+    fi
 fi
+
+# Install UTRannotator Plugin
+
+if [[ -f ${default_vep_cache}/Plugins/UTRannotator.pm ]]
+   then
+       echo "UTRannotator installed at ${default_vep_cache}/Plugins/UTRannotator.pm"
+   else
+      git clone https://github.com/ImperialCardioGenetics/UTRannotator.git tmp_clone_UTR
+      cp -rf tmp_clone_UTR/* ${default_vep_cache}/Plugins/
+      rm -rf tmp_clone_UTR
+fi
+
+# Get REVEL data file
+
+if [ $genome = "GRCh37" ]
+    then
+        if [[ -f ${default_vep_cache}/Plugins/grch37_tabbed_revel.tsv.gz ]]
+	   then
+     	       echo "REVEL data file is available at ${default_vep_cache}/Plugins/grch37_tabbed_revel.tsv.gz"
+           else
+	       wget https://rothsj06.u.hpc.mssm.edu/revel_grch38_all_chromosomes.csv.zip -P ${default_vep_cache}/Plugins/
+               zcat ${default_vep_cache}/Plugins/revel_grch38_all_chromosomes.csv.zip | tr "," "\t" | sed '1s/.*/#&/' | awk 'BEGIN{OFS="\t"}{print$1,$2,$4,$5,$6,$7,$8}' | bgzip  > ${default_vep_cache}/Plugins/grch37_tabbed_revel.tsv.gz
+               tabix -f -s 1 -b 2 -e 2 ${default_vep_cache}/Plugins/grch37_tabbed_revel.tsv.gz 
+  	       rm ${default_vep_cache}/Plugins/revel_grch38_all_chromosomes.csv.zip
+        fi
+     else	  
+	 if [[ -f ${default_vep_cache}/Plugins/grch38_tabbed_revel.tsv.gz ]]
+	    then
+	        echo "REVEL data file is available at ${default_vep_cache}/Plugins/grch38_tabbed_revel.tsv.gz"
+	    else
+	        wget https://rothsj06.u.hpc.mssm.edu/revel_grch38_all_chromosomes.csv.zip -P ${default_vep_cache}/Plugins/
+                zcat ${default_vep_cache}/Plugins/revel_grch38_all_chromosomes.csv.zip | tr "," "\t" | sed '1s/.*/#&/' | awk 'BEGIN{OFS="\t"}{if ($3 != ".")print$1,$3,$4,$5,$6,$7,$8}' | sed 's/#chr/0000#chr/' | sort -Vk1,2 | sed 's/0000#chr/#chr/' | bgzip  > ${default_vep_cache}/Plugins/grch38_tabbed_revel.tsv.gz
+                tabix -f -s 1 -b 2 -e 2 ${default_vep_cache}/Plugins/grch38_tabbed_revel.tsv.gz
+                rm ${default_vep_cache}/Plugins/revel_grch38_all_chromosomes.csv.zip
+         fi  
+fi
+
+# Get GeneSplicer binary and training data
+
+if [[ -d ${default_vep_cache}/Plugins/GeneSplicer ]]
+     then
+             echo "GeneSplicer installed at ${default_vep_cache}/Plugins/GeneSplicer"
+     else
+             wget ftp://ftp.ccb.jhu.edu/pub/software/genesplicer/GeneSplicer.tar.gz -P ${default_vep_cache}/Plugins/
+             cd ${default_vep_cache}/Plugins
+             tar -xzf GeneSplicer.tar.gz
+             rm GeneSplicer.tar.gz
+             /software/singularity-v3.6.4/bin/singularity exec -B ${default_vep_cache}:/opt/vep/.vep -B ${vep_dir}/vep_loftee/:/vep_loftee ${vep_dir}/singularity_containers/${vep_singularity_image} /bin/bash /vep_loftee/compile_GeneSplicer.sh
+fi
+
