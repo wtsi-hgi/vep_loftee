@@ -45,7 +45,7 @@ if [[ -d ${default_vep_cache}/Plugins ]]
      /software/singularity-v3.6.4/bin/singularity exec \
      -B ${default_vep_cache}:/opt/vep/.vep \
      ${vep_singularity_image} \
-     perl /opt/vep/src/ensembl-vep/INSTALL.pl -a p --PLUGINS all --PLUGINSDIR /opt/vep/.vep/Plugins
+     perl /opt/vep/src/ensembl-vep/INSTALL.pl -d /opt/vep/.vep -a p --PLUGINS all --PLUGINSDIR /opt/vep/.vep/Plugins
 fi
 # add loftee plugin to the cache
 
@@ -92,18 +92,60 @@ fi
 
 # download optional loftee files human_ancestor_fa
 if [ $genome = "GRCh37" ]; then
-   [[ -f ${default_vep_cache}/Plugins/grch37_human_ancestor.fa.gz ]] || wget https://s3.amazonaws.com/bcbio_nextgen/human_ancestor.fa.gz -P ${default_vep_cache}/Plugins/ -O grch37_human_ancestor.fa.gz
-   [[ -f ${default_vep_cache}/Plugins/grch37_human_ancestor.fa.gz.fai ]] || wget https://s3.amazonaws.com/bcbio_nextgen/human_ancestor.fa.gz.fai -P ${default_vep_cache}/Plugins/ -O human_ancestor.fa.gz.fai
-   [[ -f ${default_vep_cache}/Plugins/grch37_human_ancestor.fa.gz.gzi ]] || wget https://s3.amazonaws.com/bcbio_nextgen/human_ancestor.fa.gz.gzi -P ${default_vep_cache}/Plugins/ -O human_ancestor.fa.gz.gzi
+   if [[ -f ${default_vep_cache}/Plugins/grch37_human_ancestor.fa.gz ]]
+       then
+           echo using loftee data file ${default_vep_cache}/Plugins/grch37_human_ancestor.fa.gz
+       else
+           wget https://s3.amazonaws.com/bcbio_nextgen/human_ancestor.fa.gz -P ${default_vep_cache}/Plugins/
+           mv ${default_vep_cache}/Plugins/human_ancestor.fa.gz ${default_vep_cache}/Plugins/grch37_human_ancestor.fa.gz
+   fi
+   if [[ -f ${default_vep_cache}/Plugins/grch37_human_ancestor.fa.gz.fai ]]
+       then
+           echo using loftee data file ${default_vep_cache}/Plugins/grch37_human_ancestor.fa.gz.fai
+       else
+           wget https://s3.amazonaws.com/bcbio_nextgen/human_ancestor.fa.gz.fai -P ${default_vep_cache}/Plugins/
+           mv ${default_vep_cache}/Plugins/human_ancestor.fa.gz.fai ${default_vep_cache}/Plugins/grch37_human_ancestor.fa.gz.fai
+   fi
+   if [[ -f ${default_vep_cache}/Plugins/grch37_human_ancestor.fa.gz.gzi ]]
+        then
+            echo using loftee data file ${default_vep_cache}/Plugins/grch37_human_ancestor.fa.gz.gzi
+        else
+            wget https://s3.amazonaws.com/bcbio_nextgen/human_ancestor.fa.gz.gzi -P ${default_vep_cache}/Plugins/
+            mv ${default_vep_cache}/Plugins/human_ancestor.fa.gz.gzi ${default_vep_cache}/Plugins/grch37_human_ancestor.fa.gz.gzi
+   fi
    # download optional loftee files conservation_file
-   [[ -f ${default_vep_cache}/Plugins/phylocsf_gerp.sql ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh37/phylocsf_gerp.sql.gz -P ${default_vep_cache}/Plugins/ && gunzip ${default_vep_cache}/Plugins/phylocsf_gerp.sql.gz
+   if [[ -f ${default_vep_cache}/Plugins/phylocsf_gerp.sql ]]
+      then
+              echo "loftee conservation_file installed at ${default_vep_cache}/Plugins/phylocsf_gerp.sql"
+      else
+              wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh37/phylocsf_gerp.sql.gz -P ${default_vep_cache}/Plugins/
+              gunzip ${default_vep_cache}/Plugins/phylocsf_gerp.sql.gz
+   fi
    [[ -f ${default_vep_cache}/Plugins/GERP_scores.exons.txt.gz ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh37/GERP_scores.exons.txt.gz -P ${default_vep_cache}/Plugins/                                     
    [[ -f ${default_vep_cache}/Plugins/GERP_scores.final.sorted.txt.gz ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh37/GERP_scores.final.sorted.txt.gz -P ${default_vep_cache}/Plugins/                              
    [[ -f ${default_vep_cache}/Plugins/GERP_scores.final.sorted.txt.gz.tbi ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh37/GERP_scores.final.sorted.txt.gz.tbi -P ${default_vep_cache}/Plugins/                   
 else
-   [[ -f ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/human_ancestor.fa.gz -P ${default_vep_cache}/Plugins -O grch38_human_ancestor.fa.gz
-   [[ -f ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz.fai ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/human_ancestor.fa.gz.fai -P ${default_vep_cache}/Plugins -O grch38_human_ancestor.fa.gz.fai
-   [[ -f ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz.gzi ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/human_ancestor.fa.gz.gzi -P ${default_vep_cache}/Plugins -O grch38_human_ancestor.fa.gz.gzi
+   if [[ -f ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz ]]
+       then
+           echo using loftee data file ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz
+       else
+            wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/human_ancestor.fa.gz -P ${default_vep_cache}/Plugins
+            mv ${default_vep_cache}/Plugins/human_ancestor.fa.gz ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz
+   fi
+   if [[ -f ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz.fai ]]
+       then
+           echo using loftee data file ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz.fai
+       else
+           wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/human_ancestor.fa.gz.fai -P ${default_vep_cache}/Plugins
+           mv ${default_vep_cache}/Plugins/human_ancestor.fa.gz.fai ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz.fai
+   fi
+   if [[ -f ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz.gzi ]]
+       then
+           echo using loftee data file ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz.gzi
+       else
+           wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/human_ancestor.fa.gz.gzi -P ${default_vep_cache}/Plugins
+           mv ${default_vep_cache}/Plugins/human_ancestor.fa.gz.gzi ${default_vep_cache}/Plugins/grch38_human_ancestor.fa.gz.gzi
+   fi
    # download optional loftee files conservation_file
    [[ -f ${default_vep_cache}/Plugins/gerp_conservation_scores.homo_sapiens.GRCh38.bw ]] || wget https://personal.broadinstitute.org/konradk/loftee_data/GRCh38/gerp_conservation_scores.homo_sapiens.GRCh38.bw -P ${default_vep_cache}/Plugins/
     if [[ -f ${default_vep_cache}/Plugins/loftee.sql ]]
