@@ -1,3 +1,6 @@
+command -v tabix >/dev/null 2>&1 || { echo >&2 "Tabix is required but it's not installed.  Aborting."; exit 1; }
+
+
 vep_release=$(git rev-parse --abbrev-ref HEAD) # this should  match the version/tag of the docker image in dockerhub
                                                #see https://hub.docker.com/r/mercury/vep_loftee/tags
 
@@ -8,7 +11,15 @@ vep_singularity_image=vep_loftee_${vep_release}.sif
 vep_dir="/lustre/scratch118/humgen/resources/ensembl/vep"
 
 # choose where to build the cache, e.g. in ${HOME} :
-default_vep_cache=/lustre/scratch118/humgen/resources/ensembl/vep/${genome}/vep_data  #/homo_sapiens/${vep_cache}
+default_vep_cache=${vep_dir}/${genome}/vep_data  #/homo_sapiens/${vep_cache}
+if [[ -d "${default_vep_cache}" ]]
+    then
+        echo ${default_vep_cache}
+    else
+        mkdir -p ${default_vep_cache}
+        echo ${default_vep_cache}
+fi
+
 echo ${default_vep_cache}
 
 #rm -rf ${local_vep_cache}
@@ -16,9 +27,16 @@ echo ${default_vep_cache}
 #chmod a+rw ${local_vep_cache}
 
 # use singularity to pull the docker image from dockerhub and build the equivalent Singularity container
+if [[ -d "${vep_dir}/singularity_containers" ]]
+    then
+        cd ${vep_dir}/singularity_containers/
+        [[ -f ${vep_singularity_image} ]] || /software/singularity-v3.6.4/bin/singularity pull docker://${vep_docker_image}
+    else
+        mkdir ${vep_dir}/singularity_containers
+        cd ${vep_dir}/singularity_containers/
+        [[ -f ${vep_singularity_image} ]] || /software/singularity-v3.6.4/bin/singularity pull docker://${vep_docker_image}
+fi
 
-cd ${vep_dir}/singularity_containers/
-[[ -f ${vep_singularity_image} ]] || /software/singularity-v3.6.4/bin/singularity pull docker://${vep_docker_image}
 
 
 
