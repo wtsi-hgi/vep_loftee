@@ -54,7 +54,7 @@ vep \
 --plugin UTRannotator,/opt/vep/.vep/Plugins/uORF_starts_ends_GRCh38_PUBLIC.txt \
 --plugin CADD,/lustre/scratch118/humgen/resources/cadd_scores/20201027-GRCh38_v1.6/whole_genome_SNVs.tsv.gz,/lustre/scratch118/humgen/resources/cadd_scores/20201027-GRCh38_v1.6/gnomad.genomes.r3.0.indel.tsv.gz \
 --fork 4 \
---custom /lustre/scratch118/humgen/resources/gnomAD/release-2.1.1/exomes/gnomad.exomes.r2.1.1.sites.liftover_grch38.vcf.bgz,gnomAD2.1,vcf,exact,0,AF_raw,AF_popmax,AF_afr,AF_amr,AF_asj,AF_eas,AF_fin,AF_nfe,AF_oth,AF_sas  \
+--everything \
 --plugin LoF,loftee_path:/opt/vep/.vep/Plugins,human_ancestor_fa:/opt/vep/.vep/Plugins/GRCh38_human_ancestor.fa.gz,conservation_file:/opt/vep/.vep/Plugins/loftee.sql,gerp_bigwig:/opt/vep/.vep/Plugins/gerp_conservation_scores.homo_sapiens.GRCh38.bw \
 --plugin REVEL,/opt/vep/.vep/Plugins/grch38_tabbed_revel.tsv.gz \
 --plugin SpliceAI,snv=/lustre/scratch118/humgen/resources/SpliceAI_data_files/spliceai_scores.raw.snv.hg38.vcf.gz,indel=/lustre/scratch118/humgen/resources/SpliceAI_data_files/spliceai_scores.raw.indel.hg38.vcf.gz \
