@@ -5,7 +5,7 @@ vep_release=$(git rev-parse --abbrev-ref HEAD) # this should  match the version/
                                                #see https://hub.docker.com/r/mercury/vep_loftee/tags
 
 vep_cache_release=$(echo ${vep_release} | sed "s/\.[[:digit:]]\+//")
-genome=GRCh38 # choose GRCh37 or GRCh38
+genome=GRCh37 # choose GRCh37 or GRCh38
 vep_docker_image=mercury/vep_loftee:${vep_release}
 vep_singularity_image=vep_loftee_${vep_release}.sif
 vep_dir="/lustre/scratch118/humgen/resources/ensembl/vep"
@@ -85,12 +85,16 @@ if [ $genome = "GRCh37" ]
         if [ $loftee_md5 = "b36c6afe5eac055717524e7761a87207" ]
            then
                echo "loftee installed for ${genome} at ${default_vep_cache}/Plugins/LoF.pm"
-           else
-               echo add loftee plugin to cache
-               cd ${default_vep_cache}
-               git clone  https://github.com/konradjk/loftee.git tmp_clone
-               cp -rf tmp_clone/* ${default_vep_cache}/Plugins/
-               rm -rf tmp_clone
+               if [[ -f ${default_vep_cache}/Plugins/utr_splice.pl ]]
+                  then
+                     echo "Loftee auxilliary files seem to be installed"
+		  else
+                     echo add loftee auxilliary files to cache
+                     cd ${default_vep_cache}
+                     git clone  https://github.com/konradjk/loftee.git tmp_clone
+                     cp -rf tmp_clone/* ${default_vep_cache}/Plugins/
+                     rm -rf tmp_clone
+	       fi
        fi
 
     else
@@ -99,12 +103,16 @@ if [ $genome = "GRCh37" ]
        if [ $loftee_md5 = "f739c86776aebee76ed8e2c4b8214b8a" ]
            then
                echo "loftee installed for ${genome} at ${default_vep_cache}/Plugins/LoF.pm"
-           else
-               echo add loftee plugin to cache
-               cd ${default_vep_cache}
-               git clone --single-branch --branch grch38 https://github.com/konradjk/loftee.git tmp_clone
-               cp -rf tmp_clone/* ${default_vep_cache}/Plugins/
-               rm -rf tmp_clone
+               if [[ -f ${default_vep_cache}/Plugins/utr_splice.pl ]]
+                  then
+	             echo "Loftee auxilliary files seem to be installed"
+		  else
+                     echo add loftee auxilliary files to cache
+                     cd ${default_vep_cache}
+                     git clone --single-branch --branch grch38 https://github.com/konradjk/loftee.git tmp_clone
+                     cp -rf tmp_clone/* ${default_vep_cache}/Plugins/
+                     rm -rf tmp_clone
+	       fi     
        fi
 fi
 
