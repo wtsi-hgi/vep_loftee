@@ -1,4 +1,4 @@
-FROM ensemblorg/ensembl-vep:release_102.0
+FROM ensemblorg/ensembl-vep:release_97.3
 
 WORKDIR /opt/vep/src
 
