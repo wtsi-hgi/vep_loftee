@@ -7,4 +7,4 @@ https://hub.docker.com/r/mercury/vep_loftee/tags
 
 First use `make_vep_cache.sh` to download the docker image, build the cache, add Loftee plugin and genome files.
 
-Then use` run_loftee_with_cache.sh` to test run on a vcf (not provided).
+Then use` run_vep_102.0.sh` to test run on a vcf (not provided).
