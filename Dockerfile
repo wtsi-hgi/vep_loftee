@@ -3,7 +3,7 @@ FROM ensemblorg/ensembl-vep:release_97.3
 WORKDIR /opt/vep/src
 
 USER root
-RUN apt update && apt install wget libcurl4-openssl-dev git -y
+RUN apt update && apt install wget libcurl4-openssl-dev libbz2-dev liblzma-dev git -y
 RUN chmod -R a+rw /opt/vep/src
 
 USER vep
